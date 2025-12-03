@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ruota SmartphoneMania</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* SFONDO NATALIZIO GENERALE */
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top, #ffffff20, #0b1220 55%, #020617 100%),
+        linear-gradient(135deg, #991b1b, #14532d);
+      color: #e5e7eb;
+      overflow: hidden; /* niente scroll */
+    }
+
+    /* Effetto "fiocchi di neve" leggero */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.6) 0, rgba(255,255,255,0) 55px),
+        radial-gradient(circle, rgba(255,255,255,0.4) 0, rgba(255,255,255,0) 45px);
+      background-size: 260px 260px, 180px 180px;
+      background-position: 0 0, 80px 120px;
+      opacity: 0.3;
+      mix-blend-mode: screen;
+      z-index: 0;
+    }
+
+    .app {
+      width: 100%;
+      height: 100vh;
+      max-width: 900px;
+      max-height: 100vh;
+      padding: 4px 6px 6px;
+      background:
+        radial-gradient(circle at top, rgba(248,250,252,0.15), rgba(15,23,42,.96));
+      box-shadow:
+        0 25px 60px rgba(0,0,0,.9),
+        0 0 0 1px rgba(148,163,184,.4);
+      border-radius: 12px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      z-index: 1;
+      overflow: hidden;
+      transition: box-shadow 0.25s ease, transform 0.25s ease;
+    }
+
+    /* Effetto quando esce il JACKPOT: tutto illuminato */
+    .app.jackpot-locked {
+      box-shadow:
+        0 0 40px rgba(250,204,21,.9),
+        0 0 80px rgba(250,250,210,.9),
+        0 0 0 1px rgba(250,250,210,.9);
+      transform: scale(1.01);
+    }
+
+    .app::before,
+    .app::after {
+      content: "";
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: 8px dashed rgba(22,163,74,0.9);
+      filter: drop-shadow(0 0 12px rgba(34,197,94,0.8));
+      opacity: 0.25;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .app::before { top: -80px; left: -50px; }
+    .app::after { bottom: -80px; right: -40px; }
+
+    header {
+      text-align: center;
+      margin-bottom: 4px;
+      position: relative;
+      z-index: 2;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: radial-gradient(circle at top left, rgba(248,250,252,.25), transparent),
+                  linear-gradient(135deg, #b91c1c, #f97316);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 3px;
+    }
+    .badge span { font-weight: 600; }
+    h1 { font-size: 18px; margin-bottom: 1px; }
+    .subtitle { font-size: 10px; }
+
+    .content {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 4px;
+      position: relative;
+      z-index: 2;
+    }
+
+    @media (max-width: 720px) {
+      .content { grid-template-columns: 1fr; }
+    }
+
+    .left, .right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .left { justify-content: center; }
+
+    /* RUOTA RIDOTTA */
+    .wheel-wrapper {
+      position: relative;
+      width: min(280px, 62vw);
+      height: min(280px, 62vw);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @media (max-height: 700px) {
+      .wheel-wrapper {
+        width: min(250px, 58vw);
+        height: min(250px, 58vw);
+      }
+      h1 { font-size: 17px; }
+      .subtitle { font-size: 9px; }
+    }
+
+    .wheel-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      border: 10px solid #020617;
+      box-shadow:
+        0 0 0 2px rgba(248,250,252,.2),
+        0 0 28px rgba(56,189,248,.9);
+      z-index: 1;
+    }
+
+    .text-ring { position: absolute; inset: -2px; border-radius: 50%; pointer-events: none; z-index: 6; }
+
+    .led-ring { position: absolute; inset: -4px; border-radius: 999px; pointer-events: none; z-index: 3; }
+    .led-dot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 20%, #fef9c3, #b45309);
+      box-shadow: 0 0 4px rgba(250,204,21,.9), 0 0 10px rgba(250,204,21,.9);
+      opacity: 0.35;
+      transform-origin: 0 0;
+      animation: ledPulse 1.3s ease-in-out infinite alternate;
+    }
+    @keyframes ledPulse {
+      0% { opacity: .2; transform: scale(.9); }
+      100% { opacity: 1; transform: scale(1.15); }
+    }
+
+    .light-sweep-outer {
+      position: absolute;
+      inset: -6px;
+      border-radius: 999px;
+      background: conic-gradient(
+        from 0deg,
+        rgba(250,250,210,0) 0deg,
+        rgba(250,250,210,0) 300deg,
+        rgba(250,250,210,0.95) 320deg,
+        rgba(250,250,210,0.4) 340deg,
+        rgba(250,250,210,0) 360deg
+      );
+      mix-blend-mode: screen;
+      opacity: 0.8;
+      pointer-events: none;
+      animation: sweepOuter 2.6s linear infinite;
+      z-index: 2;
+    }
+    @keyframes sweepOuter {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .wheel {
+      position: relative;
+      width: 88%;
+      height: 88%;
+      border-radius: 999px;
+      background: conic-gradient(
+          from -90deg,
+          #f97373 0deg 45deg,
+          #facc15 45deg 90deg,
+          #4ade80 90deg 135deg,
+          #38bdf8 135deg 180deg,
+          #e879f9 180deg 225deg,
+          #9ca3af 225deg 270deg,
+          #22c55e 270deg 315deg,
+          #0f172a 315deg 360deg
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow:
+        0 16px 32px rgba(0,0,0,.9),
+        inset 0 0 18px rgba(15,23,42,.95);
+      transition: transform 4.8s cubic-bezier(.11,.9,.25,1);
+      z-index: 5;
+    }
+
+    .garland-ring {
+      position: absolute;
+      inset: -16px;
+      border-radius: 999px;
+      border: 12px solid transparent;
+      background: conic-gradient(
+        #166534, #065f46, #16a34a, #b91c1c,
+        #166534, #16a34a, #b91c1c, #16a34a,
+        #166534, #b91c1c, #166534, #16a34a,
+        #b91c1c, #16a34a, #166534, #b91c1c,
+        #166534, #16a34a, #b91c1c, #16a34a,
+        #166534, #b91c1c, #16a34a, #166534,
+        #b91c1c, #16a34a, #166534, #b91c1c,
+        #16a34a, #166534, #b91c1c, #16a34a,
+        #166534, #b91c1c, #16a34a, #166534
+      );
+      opacity: 0.9;
+      box-shadow: 0 0 18px rgba(22,163,74,0.7), 0 0 24px rgba(220,38,38,0.6);
+      z-index: 0;
+    }
+
+    .wheel-snow {
+      position: absolute;
+      inset: 4%;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 4;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.9) 0, rgba(255,255,255,0) 5px),
+        radial-gradient(circle, rgba(255,255,255,0.7) 0, rgba(255,255,255,0) 4px),
+        radial-gradient(circle, rgba(255,255,255,0.6) 0, rgba(255,255,255,0) 3px);
+      background-size: 50px 50px, 70px 70px, 90px 90px;
+      background-position: 0 -40px, 40px -60px, -30px -20px;
+      animation: snowFall 8s linear infinite;
+      mix-blend-mode: screen;
+      opacity: 0.85;
+    }
+    @keyframes snowFall {
+      0% { background-position: 0 -40px, 40px -60px, -30px -20px; }
+      100% { background-position: 0 120px, 40px 140px, -30px 110px; }
+    }
+
+    .wheel-center {
+      position: absolute;
+      inset: 36%;
+      border-radius: 999px;
+      background: #020617;
+      box-shadow:
+        0 0 0 3px rgba(248,250,252,.35),
+        0 0 20px rgba(56,189,248,.9);
+      z-index: 6;
+      overflow: hidden;
+    }
+
+    .wheel-logo {
+      position: absolute;
+      width: 38%;
+      height: 38%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #020617;
+      z-index: 7;
+    }
+    .wheel-logo img { width: 100%; height: 100%; object-fit: contain; }
+
+    .pointer {
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-bottom: 22px solid #facc15;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,.8));
+      z-index: 10;
+    }
+
+    .pointer-base {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 32px;
+      height: 14px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #fef9c3,#b45309);
+      box-shadow:
+        0 0 0 2px rgba(248,250,252,.6),
+        0 0 10px rgba(250,204,21,.7);
+      z-index: 9;
+    }
+
+    /* Babbo Natale */
+    .santa-left,
+    .santa-right {
+      position: absolute;
+      font-size: 34px;
+      text-shadow: 0 0 10px rgba(0,0,0,0.8);
+      pointer-events: none;
+      z-index: 3;
+    }
+    .santa-left { left: -10%; bottom: -2px; }
+    .santa-right { right: -10%; top: -2px; transform: scale(1.05) rotate(-6deg); }
+
+    @media (max-width: 720px) {
+      .santa-left { left: -10%; bottom: -4px; }
+      .santa-right { right: -10%; top: -4px; }
+    }
+
+    .controls {
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform .12s ease, box-shadow .12s ease, opacity .2s ease;
+    }
+    .btn-primary {
+      background: radial-gradient(circle at 20% 0, #f97316,#dc2626);
+      color:#fefce8;
+      box-shadow:
+        0 10px 20px rgba(220,38,38,.6),
+        0 0 0 1px rgba(248,250,252,.2);
+    }
+    .btn-primary:active {
+      transform: translateY(1px) scale(.98);
+      box-shadow:
+        0 6px 12px rgba(220,38,38,.5),
+        0 0 0 1px rgba(248,250,252,.2);
+    }
+    .btn-secondary {
+      background: rgba(15,23,42,.85);
+      color:#e5e7eb;
+      border:1px solid rgba(148,163,184,.7);
+      font-size:11px;
+      padding-inline:12px;
+    }
+    .btn-small {
+      font-size: 11px;
+      padding: 5px 12px;
+    }
+
+    .music-toggle { font-size: 11px; cursor: pointer; color: #bbf7d0; }
+    .info-row { display:flex; gap:6px; justify-content:center; font-size:11px; color:#9ca3af; flex-wrap: wrap; }
+    .chip {
+      padding:3px 8px;
+      border-radius:999px;
+      background:rgba(15,23,42,.8);
+      border:1px solid rgba(148,163,184,.5);
+    }
+
+    .legend, .nick, .leaderboard {
+      width:100%;
+      border-radius:12px;
+      padding:7px 8px;
+      background:rgba(15,23,42,.9);
+      border:1px solid rgba(55,65,81,.85);
+      font-size:11px;
+      margin-bottom:5px;
+      position: relative;
+      z-index: 2;
+    }
+    .legend-title, .nick-title, .leaderboard-title {
+      display:flex;
+      align-items:center;
+      gap:6px;
+      font-weight:600;
+      margin-bottom:3px;
+    }
+    .legend-list { margin-left:14px; color:#d1d5db; }
+
+    /* Rettangolo combinato LEGGENDA + ULTIMO RISULTATO + STATISTICHE */
+    .legend-combined {
+      padding:6px 7px;
+    }
+    .legend-cols {
+      display:flex;
+      gap:6px;
+    }
+    .legend-col {
+      flex:1;
+      min-width:0;
+    }
+
+    .result {
+      width:100%;
+      border-radius:10px;
+      padding:4px 6px;
+      background:rgba(15,23,42,0.95);
+      border:1px solid rgba(55,65,81,.85);
+      font-size:11px;
+      margin-bottom:4px;
+    }
+
+    .result-title {
+      display:flex;
+      align-items:center;
+      gap:6px;
+      font-weight:600;
+      margin-bottom:3px;
+    }
+
+    .result-main { font-size:13px; font-weight:700; margin-bottom:3px; }
+    .result-main.jackpot{
+      color:#facc15;
+      text-shadow:0 0 6px rgba(250,204,21,.9),0 0 18px rgba(250,204,21,.9);
+      animation: jackpotTextBlink 0.4s ease-in-out infinite alternate;
+    }
+    @keyframes jackpotTextBlink {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.05); }
+    }
+    .result-main.win{color:#4ade80;}
+    .result-main.lose{color:#f97373;}
+    .result-sub span{font-weight:600;}
+
+    /* STATISTICHE INLINE (sotto ultimo risultato) */
+    .stats-inline {
+      width:100%;
+      border-radius:10px;
+      padding:4px 6px;
+      background:rgba(15,23,42,0.95);
+      border:1px solid rgba(55,65,81,.85);
+      font-size:11px;
+      margin-bottom:0;
+    }
+    .stats-title {
+      display:flex;
+      align-items:center;
+      gap:6px;
+      font-weight:600;
+      margin-bottom:2px;
+    }
+    .stats-row{
+      display:flex;
+      justify-content:space-between;
+      margin-bottom:1px;
+    }
+
+    .footer-note {
+      font-size:9px;
+      color:#9ca3af;
+      text-align:center;
+      margin-top: 2px;
+    }
+
+    .hidden{display:none;}
+
+    .xmas-msg {
+      margin-top: 4px;
+      font-size: 11px;
+      text-align: center;
+      color: #facc15;
+      text-shadow: 0 0 6px rgba(250,204,21,0.7);
+      font-weight: 600;
+    }
+
+    .prize-overlay {
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      pointer-events:none;
+      z-index:30;
+      padding-top: 40px;
+      animation:prizeFade 2.6s ease-out forwards;
+    }
+    @keyframes prizeFade {
+      0%{opacity:0;}10%{opacity:1;}80%{opacity:1;}100%{opacity:0;}
+    }
+    .prize-banner{
+      padding:16px 24px;
+      border-radius:20px;
+      background:radial-gradient(circle at 20% 0,#f9fafb,#e5e7eb);
+      box-shadow:
+        0 0 0 3px rgba(248,250,252,.9),
+        0 24px 60px rgba(0,0,0,.9);
+      text-align:center;
+      border:2px solid rgba(148,163,184,.9);
+      max-width:80%;
+    }
+    .prize-title{
+      font-size:20px;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:#111827;
+      margin-bottom:4px;
+    }
+    .prize-amount{
+      font-size:24px;
+      font-weight:900;
+      color:#16a34a;
+      text-shadow:0 0 6px rgba(34,197,94,.6);
+    }
+    .prize-sub{
+      font-size:12px;
+      margin-top:4px;
+      color:#374151;
+    }
+
+    .prize-banner.jackpot{
+      background:radial-gradient(circle at 20% 0,#fef9c3,#b45309);
+      border-color:#fef08a;
+    }
+    .prize-title.jackpot{
+      font-size:26px;
+      color:#7c2d12;
+      letter-spacing:.25em;
+      animation:jackpotBlink .4s ease-in-out infinite alternate;
+    }
+    .prize-amount.jackpot{
+      font-size:34px;
+      color:#b91c1c;
+      text-shadow:0 0 6px rgba(248,113,113,.9),0 0 18px rgba(239,68,68,.9);
+      animation:jackpotBlink .4s ease-in-out infinite alternate;
+    }
+    @keyframes jackpotBlink{
+      0%{transform:scale(1);opacity:.85;}
+      100%{transform:scale(1.2);opacity:1;}
+    }
+
+    /* Nickname & Leaderboard */
+    .nick {
+      margin-bottom:4px;
+    }
+    .nick-input-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 2px;
+      margin-bottom: 3px;
+    }
+    .nick-input {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,.7);
+      background: rgba(15,23,42,.95);
+      color: #e5e7eb;
+      padding: 4px 10px;
+      font-size: 11px;
+      outline: none;
+    }
+    .nick-input::placeholder {
+      color: #6b7280;
+    }
+    .nick-current {
+      font-size: 10px;
+      color: #9ca3af;
+    }
+
+    .leaderboard-list {
+      margin-left: 16px;
+      margin-top: 3px;
+      color: #d1d5db;
+      max-height: 120px;
+      overflow: hidden;
+    }
+    .leaderboard-list li {
+      margin-bottom: 2px;
+    }
+
+    .multi-input {
+      width: 52px;
+      margin-left: 4px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,.7);
+      background: rgba(15,23,42,.95);
+      color: #e5e7eb;
+      padding: 2px 6px;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    /* Popup "Giro X di Y" */
+    .multi-status {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(15,23,42,.95);
+      border: 1px solid rgba(250,204,21,.8);
+      font-size: 11px;
+      color: #facc15;
+      text-shadow: 0 0 4px rgba(250,204,21,.7);
+      box-shadow: 0 8px 20px rgba(0,0,0,.6);
+      z-index: 5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SUONI -->
+  <audio id="bgMusic" src="natale.mp3" loop autoplay muted></audio>
+  <audio id="spinSound" src="spin.mp3" preload="auto"></audio>
+  <audio id="winSound" src="win.mp3" preload="auto"></audio>
+  <audio id="jackpotSound" src="jackpot.mp3" preload="auto"></audio>
+
+  <!-- overlay premi -->
+  <div id="prize-overlay" class="hidden"></div>
+
+  <div class="app" id="appRoot">
+    <header>
+      <div class="badge"><span>🎄 Xmas Edition</span> · Ruota Jackpot</div>
+      <h1>SMARTPHONEMANIA WHEEL</h1>
+      <p class="subtitle">Gioco interno per le live · Jackpot 45.000 monete</p>
+    </header>
+
+    <!-- 🔢 POPUP CONTA GIRI MULTIPLI -->
+    <div id="multiStatus" class="multi-status hidden">
+      Giro 1 di 1
+    </div>
+
+    <div class="content">
+      <div class="left">
+
+        <!-- RUOTA -->
+        <div class="wheel-wrapper">
+          <div class="wheel-ring"></div>
+          <div class="garland-ring"></div>
+          <div id="textRing" class="text-ring"></div>
+          <div id="ledRing" class="led-ring"></div>
+          <div class="light-sweep-outer"></div>
+
+          <div class="wheel" id="wheel">
+            <div class="wheel-center"></div>
+            <div class="wheel-logo">
+              <img src="logo_smartphonemania.png" alt="Smartphone Mania Agency Logo" />
+            </div>
+          </div>
+
+          <div class="wheel-snow"></div>
+
+          <div class="pointer"></div>
+          <div class="pointer-base"></div>
+
+          <div class="santa-left">🎅</div>
+          <div class="santa-right">🎅</div>
+        </div>
+
+        <div class="controls">
+          <button class="btn btn-primary" id="spinBtn">🎡 Gira la ruota</button>
+          <button class="btn btn-secondary" id="resetBtn">🔄 Azzera sessione</button>
+          <div class="music-toggle" id="musicToggle">🔊 Musica natalizia: OFF (tocca per ON)</div>
+
+          <div class="info-row">
+            <div class="chip">🎟️ 100 monete a giro</div>
+          </div>
+
+          <div class="info-row">
+            <div class="chip">
+              🔢 Giri multipli:
+              <input
+                type="number"
+                id="multiSpinsInput"
+                min="1"
+                max="100"
+                value="1"
+                class="multi-input"
+              />
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="right">
+
+        <!-- 👤 REGISTRAZIONE NICK -->
+        <section class="nick">
+          <div class="nick-title"><span>👤</span>Nick giocatore</div>
+          <div class="nick-input-row">
+            <input
+              type="text"
+              id="nickInput"
+              class="nick-input"
+              placeholder="Inserisci il tuo Nick (es. Benito, Rachele...)"
+            />
+            <button class="btn btn-secondary btn-small" id="saveNickBtn">Salva Nick</button>
+          </div>
+          <div class="nick-current" id="currentNick">Nessun Nick selezionato.</div>
+        </section>
+        <!-- FINE NICK -->
+
+        <!-- 🔥 RETTANGOLO COMBINATO: ULTIMO RISULTATO + STATISTICHE + LEGENDA PREMI -->
+        <section class="legend legend-combined">
+          <div class="legend-cols">
+
+            <!-- ULTIMO RISULTATO + STATISTICHE A SINISTRA -->
+            <div class="legend-col">
+              <section class="result" id="resultBox">
+                <div class="result-title"><span>🎁</span>Ultimo risultato</div>
+                <p>Nessun giro ancora effettuato. Premi "Gira la ruota" per iniziare.</p>
+              </section>
+
+              <section class="stats-inline">
+                <div class="stats-title"><span>📊</span>Statistiche</div>
+                <div class="stats-row"><span>Giri effettuati</span><span id="statSpins">0</span></div>
+                <div class="stats-row"><span>Premi totali erogati</span><span id="statPrizes">0</span></div>
+              </section>
+            </div>
+
+            <!-- LEGENDA PREMI A DESTRA -->
+            <div class="legend-col">
+              <div class="legend-title"><span>📜</span>Legenda premi</div>
+              <ul class="legend-list">
+                <li>❌ Nessun premio</li>
+                <li>🎁 100 monete</li>
+                <li>🎁 250 monete</li>
+                <li>🎁 500 monete</li>
+                <li>🎁 1.000 monete</li>
+                <li>🎁 2.500 monete</li>
+                <li>💥 JACKPOT 45.000 monete</li>
+              </ul>
+              <p class="xmas-msg">🎅 Buon Natale da SmartphoneMania Agency 🎄</p>
+            </div>
+
+          </div>
+        </section>
+        <!-- 🔥 FINE RETTANGOLO COMBINATO -->
+
+        <!-- 🏆 CLASSIFICA GENERALE VINCITORI -->
+        <section class="leaderboard">
+          <div class="leaderboard-title"><span>🏆</span>Classifica generale vincitori</div>
+          <ol class="leaderboard-list" id="leaderboardList">
+            <li>Nessun vincitore registrato per ora.</li>
+          </ol>
+        </section>
+
+        <p class="footer-note">
+          In live si vedono solo giri, premi totali erogati e classifica dei vincitori. Tutta la logica economica resta interna.
+        </p>
+
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ANELLO ESTERNO – NESSUNA SCRITTA (LOGO PULITO) */
+const textRing = document.getElementById('textRing');
+const appRoot = document.getElementById('appRoot');
+
+const ledRing = document.getElementById('ledRing');
+(function createLedRing() {
+  if (!ledRing) return;
+  const count = 40;
+  for (let i = 0; i < count; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'led-dot';
+    const angle = (360 / count) * i;
+    dot.style.transform = `rotate(${angle}deg) translate(0,-50%)`;
+    dot.style.animationDelay = (i % 2 === 0 ? 0 : 0.5) + 's';
+    ledRing.appendChild(dot);
+  }
+})();
+
+const bgMusic = document.getElementById('bgMusic');
+const spinSound = document.getElementById('spinSound');
+const winSound = document.getElementById('winSound');
+const jackpotSound = document.getElementById('jackpotSound');
+const musicToggle = document.getElementById('musicToggle');
+
+let musicOn = false;
+let audioUnlocked = false;
+
+if (spinSound) spinSound.volume = 0.8;
+if (winSound) winSound.volume = 0.9;
+if (jackpotSound) jackpotSound.volume = 1.0;
+
+async function setMusic(on) {
+  try {
+    if (on) {
+      bgMusic.muted = false;
+      await bgMusic.play();
+      musicOn = true;
+      musicToggle.textContent = "🔊 Musica natalizia: ON (tocca per OFF)";
+    } else {
+      bgMusic.pause();
+      musicOn = false;
+      musicToggle.textContent = "🔊 Musica natalizia: OFF (tocca per ON)";
+    }
+  } catch(e) {}
+}
+
+document.addEventListener("click", () => {
+  if (!audioUnlocked) {
+    [bgMusic, spinSound, winSound, jackpotSound].forEach(a => { if (a) a.muted = false; });
+    audioUnlocked = true;
+  }
+}, { once: true });
+
+musicToggle.addEventListener("click", () => setMusic(!musicOn));
+
+/* ECONOMIA */
+const TICKET_PRICE = 100;              // 100 monete a giro
+const TIKTOK_FEE_RATE = 0.55;
+const NET_PER_SPIN = TICKET_PRICE * (1 - TIKTOK_FEE_RATE); // 45
+// profitto minimo garantito DOPO il jackpot (su 5000 giri resti in utile)
+const JACKPOT_THRESHOLD_PROFIT = 40000;
+const JACKPOT_BASE_PROB = 0.5;          // filtro extra: jackpot non sempre anche se tutto ok
+
+const wheel = document.getElementById("wheel");
+const spinBtn = document.getElementById("spinBtn");
+const resetBtn = document.getElementById("resetBtn");
+const resultBox = document.getElementById("resultBox");
+const prizeOverlay = document.getElementById("prize-overlay");
+const statSpins = document.getElementById("statSpins");
+const statPrizes = document.getElementById("statPrizes");
+
+const multiSpinsInput = document.getElementById("multiSpinsInput");
+const multiStatus = document.getElementById("multiStatus");
+
+/* 🔹 ELEMENTI NICK & CLASSIFICA */
+const nickInput = document.getElementById("nickInput");
+const saveNickBtn = document.getElementById("saveNickBtn");
+const currentNickLabel = document.getElementById("currentNick");
+const leaderboardListEl = document.getElementById("leaderboardList");
+
+let isSpinning = false;
+let currentRotation = 0;
+
+let totalSpins = 0;
+let totalNet = 0;
+let totalPrizeCost = 0;
+let jackpotCount = 0;
+
+/* Nick & Leaderboard – stato */
+let currentNick = "";
+const LEADERBOARD_KEY = "sm_wheel_leaderboard";
+
+let multiSpinsRemaining = 0;
+let multiSpinsTotal = 0;
+
+let gameLocked = false; // quando esce JACKPOT -> blocca il gioco
+
+function formatNumber(n){ return n.toLocaleString("it-IT"); }
+
+function saveStats(){
+  const data = { totalSpins, totalNet, totalPrizeCost, jackpotCount };
+  localStorage.setItem("sm_wheel_stats_simple", JSON.stringify(data));
+}
+function loadStats(){
+  try{
+    const raw = localStorage.getItem("sm_wheel_stats_simple");
+    if(!raw) return;
+    const d = JSON.parse(raw);
+    totalSpins = d.totalSpins || 0;
+    totalNet = d.totalNet || 0;
+    totalPrizeCost = d.totalPrizeCost || 0;
+    jackpotCount = d.jackpotCount || 0;
+  }catch(e){}
+}
+function updateStatsBox(){
+  statSpins.textContent = totalSpins;
+  statPrizes.textContent = formatNumber(Math.round(totalPrizeCost));
+  saveStats();
+}
+
+/* 🔹 Gestione Nick */
+function refreshNickLabel() {
+  if (currentNick && currentNick.trim() !== "") {
+    currentNickLabel.textContent = "Nick attivo: " + currentNick;
+  } else {
+    currentNickLabel.textContent = "Nessun Nick selezionato.";
+  }
+}
+
+function loadNick() {
+  const stored = localStorage.getItem("sm_wheel_nick") || "";
+  currentNick = stored;
+  if (nickInput) nickInput.value = stored;
+  refreshNickLabel();
+}
+
+function saveNick() {
+  const value = nickInput.value.trim();
+  if (!value) {
+    alert("Inserisci un Nick valido.");
+    return;
+  }
+  currentNick = value;
+  localStorage.setItem("sm_wheel_nick", currentNick);
+  refreshNickLabel();
+}
+
+if (saveNickBtn) {
+  saveNickBtn.addEventListener("click", saveNick);
+}
+
+/* 🔹 Gestione Leaderboard */
+function loadLeaderboard() {
+  try {
+    const raw = localStorage.getItem(LEADERBOARD_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return [];
+    return arr;
+  } catch(e) {
+    return [];
+  }
+}
+
+function saveLeaderboard(lb) {
+  localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(lb));
+}
+
+function renderLeaderboard() {
+  const lb = loadLeaderboard();
+  if (!leaderboardListEl) return;
+  if (lb.length === 0) {
+    leaderboardListEl.innerHTML = "<li>Nessun vincitore registrato per ora.</li>";
+    return;
+  }
+  lb.sort((a,b) => b.totalPrize - a.totalPrize);
+  const top = lb.slice(0, 10);
+  leaderboardListEl.innerHTML = top.map(e => `
+    <li>
+      <strong>${e.nick}</strong> — ${formatNumber(e.totalPrize)} monete
+      (giri premiati: ${e.spins}${e.jackpots > 0 ? `, jackpot: ${e.jackpots}` : ""})
+    </li>
+  `).join("");
+}
+
+function updateLeaderboard(nick, prizeAmount, isJackpot) {
+  if (!nick || !nick.trim()) return;
+  if (prizeAmount <= 0) {
+    // solo giri vincenti vanno in classifica
+    renderLeaderboard();
+    return;
+  }
+  const lb = loadLeaderboard();
+  let entry = lb.find(e => e.nick === nick);
+  if (!entry) {
+    entry = { nick, totalPrize: 0, spins: 0, jackpots: 0 };
+    lb.push(entry);
+  }
+  entry.totalPrize += prizeAmount;
+  entry.spins += 1;
+  if (isJackpot) entry.jackpots += 1;
+  saveLeaderboard(lb);
+  renderLeaderboard();
+}
+
+/* Popup "Giro X di Y" */
+function updateMultiStatusDisplay(currentNumber) {
+  if (!multiStatus) return;
+
+  if (multiSpinsTotal > 1 && multiSpinsRemaining > 0) {
+    if (currentNumber > 0) {
+      multiStatus.textContent = `Giro ${currentNumber} di ${multiSpinsTotal}`;
+    }
+    multiStatus.classList.remove("hidden");
+  } else {
+    multiStatus.classList.add("hidden");
+  }
+}
+
+/* Random + premi – STRUTTURA PENSATA SU 5000 GIRI
+   Obiettivo:
+   - più premi piccoli per coinvolgimento
+   - restare comunque in profitto anche pagando un jackpot da 45.000
+   - media ~28 monete di premio per giro (senza jackpot)
+*/
+function randomInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+const prizeDefs = {
+  JACKPOT: { name: "JACKPOT",      label: "💥 JACKPOT 45.000 monete", amount: 45000 },
+  P2500:   { name: "PREMIO_TOP",   label: "🎁 Premio top 2.500 monete", amount: 2500 },
+  P1000:   { name: "PREMIO_ALTO",  label: "🎁 Premio alto 1.000 monete", amount: 1000 },
+  P500:    { name: "PREMIO_MEDIO", label: "🎁 Premio medio 500 monete",   amount: 500 },
+  P250:    { name: "PREMIO_BASSO", label: "🎁 Premio basso 250 monete",   amount: 250 },
+  P100:    { name: "PREMIO_MINI",  label: "🎁 Premio mini 100 monete",    amount: 100 },
+  NO_WIN:  { name: "NESSUN_PREMIO",label: "❌ Nessun premio",             amount: 0 }
+};
+
+/*
+  Distribuzione NON–jackpot su 1..1000:
+
+  2..201    (200 numeri) → 100 monete
+  202..211  (10 numeri)  → 250 monete
+  212..215  (4 numeri)   → 500 monete
+  216       (1 numero)   → 1.000 monete
+  217       (1 numero)   → 2.500 monete
+  1 e 218..1000          → nessun premio
+
+  Valore medio premi:
+    200 × 100   = 20.000
+     10 × 250   =  2.500
+      4 × 500   =  2.000
+      1 × 1000  =  1.000
+      1 × 2500  =  2.500
+    ------------------------
+                 28.000 / 1000 = 28 monete/giro
+
+  Il numero 1 resta "speciale" per il jackpot:
+  - Se i requisiti di profitto sono rispettati → può assegnare il JACKPOT
+  - Altrimenti cade nel NO_WIN.
+*/
+const segmentRanges = [
+  // premi veri
+  { segmentIndex: 2, prizeKey: "P100",  rangeStart:   2, rangeEnd: 201 }, // 200 numeri → 100
+  { segmentIndex: 5, prizeKey: "P250",  rangeStart: 202, rangeEnd: 211 }, // 10 numeri  → 250
+  { segmentIndex: 3, prizeKey: "P500",  rangeStart: 212, rangeEnd: 215 }, // 4 numeri   → 500
+  { segmentIndex: 1, prizeKey: "P1000", rangeStart: 216, rangeEnd: 216 }, // 1 numero   → 1.000
+  { segmentIndex: 6, prizeKey: "P2500", rangeStart: 217, rangeEnd: 217 }, // 1 numero   → 2.500
+
+  // nessun premio (incluso 1 se non scatta il jackpot)
+  { segmentIndex: 0, prizeKey: "NO_WIN", rangeStart:   1, rangeEnd:   1   },
+  { segmentIndex: 4, prizeKey: "NO_WIN", rangeStart: 218, rangeEnd: 1000 }
+];
+
+function pickPrizeByRandom() {
+  while(true){
+    const rnd = randomInt(1,1000);
+    const net = NET_PER_SPIN;
+    const tentativeTotalNet = totalNet + net;
+
+    // 🔥 Gestione JACKPOT: solo se rnd === 1, profitto sufficiente e random extra
+    const jackpotAmount = prizeDefs.JACKPOT.amount;
+    const profitIfJackpot = tentativeTotalNet - (totalPrizeCost + jackpotAmount);
+    if (!gameLocked &&
+        rnd === 1 &&
+        profitIfJackpot >= JACKPOT_THRESHOLD_PROFIT &&
+        Math.random() < JACKPOT_BASE_PROB) {
+
+      totalSpins += 1;
+      totalNet = tentativeTotalNet;
+      totalPrizeCost += jackpotAmount;
+      jackpotCount += 1;
+      updateStatsBox();
+
+      return {
+        rnd,
+        def: prizeDefs.JACKPOT,
+        prizeCost: jackpotAmount,
+        segmentIndex: 7,
+        isJackpot: true
+      };
+    }
+
+    // Altrimenti premi normali / nessun premio
+    const segInfo = segmentRanges.find(r => rnd >= r.rangeStart && r.rangeEnd >= rnd);
+    const def = prizeDefs[segInfo.prizeKey];
+    const prizeCost = def.amount;
+
+    totalSpins += 1;
+    totalNet = tentativeTotalNet;
+    totalPrizeCost += prizeCost;
+    updateStatsBox();
+
+    return {
+      rnd,
+      def,
+      prizeCost,
+      segmentIndex: segInfo.segmentIndex,
+      isJackpot: false
+    };
+  }
+}
+
+function showPrizeBanner(def, prizeCost) {
+  prizeOverlay.classList.remove("hidden");
+
+  const isJackpot = def.name === "JACKPOT";
+  const amountText = prizeCost > 0
+    ? `${formatNumber(prizeCost)} MONETE`
+    : "NESSUN PREMIO";
+
+  const title = isJackpot
+    ? "JACKPOT!"
+    : (prizeCost > 0 ? "HAI VINTO!" : "RITENTA");
+
+  const sub = isJackpot
+    ? "SUPER JACKPOT! GIOCO BLOCCATO. Premi \"Azzera sessione\" per ripartire. 🎉"
+    : (prizeCost > 0 ? "Premio assegnato alla ruota di SmartphoneMania." : "Nessun premio in questo giro.");
+
+  prizeOverlay.innerHTML = `
+    <div class="prize-overlay">
+      <div class="prize-banner ${isJackpot ? "jackpot" : ""}">
+        <div class="prize-title ${isJackpot ? "jackpot" : ""}">${title}</div>
+        <div class="prize-amount ${isJackpot ? "jackpot" : ""}">${amountText}</div>
+        <div class="prize-sub">${sub}</div>
+      </div>
+    </div>
+  `;
+
+  setTimeout(() => {
+    prizeOverlay.classList.add("hidden");
+    prizeOverlay.innerHTML = "";
+  }, isJackpot ? 3500 : 2200);
+}
+
+function updateResultUI(info){
+  const { rnd, def, prizeCost, isJackpot } = info;
+  const cls =
+    def.name === "JACKPOT" ? "jackpot" :
+    prizeCost === 0 ? "lose" : "win";
+
+  const numeroEstratto = isJackpot ? "★ JACKPOT ★" : rnd;
+
+  resultBox.innerHTML = `
+    <div class="result-title"><span>${def.name==="JACKPOT"?"🌟":"🎁"}</span>Ultimo risultato</div>
+    <p class="result-main ${cls}">${def.label}</p>
+    <p class="result-sub">Numero estratto: <span>${numeroEstratto}</span></p>
+    <p class="result-sub">Valore premio erogato: <span>${formatNumber(prizeCost)}</span> monete</p>
+    <p class="result-sub">Giri totali finora: <span>${totalSpins}</span></p>
+    <p class="result-sub">Premi totali erogati: <span>${formatNumber(totalPrizeCost)}</span> monete</p>
+  `;
+
+  if (def.name === "JACKPOT") {
+    jackpotSound?.play().catch(()=>{});
+  } else if (prizeCost > 0) {
+    winSound?.play().catch(()=>{});
+  }
+  showPrizeBanner(def, prizeCost);
+}
+
+function normalizeAngle(a){ a = a%360; if(a<0)a+=360; return a; }
+
+function spinAnimation(segmentIndex, cb){
+  if(isSpinning) return;
+  isSpinning = true;
+  spinBtn.disabled = true;
+
+  const segmentAngle = 45;
+  const targetCenterAngle = normalizeAngle(-90 + segmentIndex*segmentAngle + segmentAngle/2);
+  const current = normalizeAngle(currentRotation);
+  let delta = targetCenterAngle - current;
+  delta = normalizeAngle(delta);
+
+  const baseSpins = 6;
+  const extra = baseSpins*360 + delta;
+  const targetRotation = currentRotation + extra;
+
+  wheel.style.transform = `rotate(${targetRotation}deg)`;
+  if (textRing) {
+    textRing.style.transform = `rotate(${targetRotation}deg)`;
+  }
+  currentRotation = targetRotation;
+
+  if (spinSound){
+    spinSound.loop = true;
+    spinSound.currentTime = 0;
+    spinSound.play().catch(()=>{});
+  }
+  if (!musicOn) setMusic(true);
+
+  setTimeout(() => {
+    if (spinSound){
+      spinSound.pause();
+      spinSound.currentTime = 0;
+      spinSound.loop = false;
+    }
+    isSpinning = false;
+    if (!gameLocked) {
+      spinBtn.disabled = false;
+    }
+    cb();
+  }, 4800);
+}
+
+/* CLICK GIRA LA RUOTA – con giri multipli + blocco su JACKPOT */
+spinBtn.addEventListener("click", () => {
+  if (gameLocked) {
+    alert('È uscito il JACKPOT! Il gioco è bloccato.\nPremi "Azzera sessione" per ripartire.');
+    return;
+  }
+
+  // Se sta già facendo giri multipli o sta girando, ignora il click
+  if (multiSpinsRemaining > 0 || isSpinning) {
+    return;
+  }
+
+  if (!currentNick || !currentNick.trim()) {
+    alert('Inserisci il tuo Nick e premi "Salva Nick" prima di girare la ruota.');
+    return;
+  }
+
+  let spinsToDo = 1;
+  if (multiSpinsInput) {
+    const v = parseInt(multiSpinsInput.value, 10);
+    if (!isNaN(v) && v > 0) {
+      spinsToDo = Math.min(v, 100); // limite di sicurezza
+    }
+  }
+
+  multiSpinsTotal = spinsToDo;
+  multiSpinsRemaining = spinsToDo;
+
+  function doSpin() {
+    if (multiSpinsRemaining <= 0 || gameLocked) {
+      multiSpinsRemaining = 0;
+      updateMultiStatusDisplay(0);
+      return;
+    }
+
+    const currentSpinNumber = multiSpinsTotal - multiSpinsRemaining + 1;
+    updateMultiStatusDisplay(currentSpinNumber);
+
+    const info = pickPrizeByRandom();
+    spinAnimation(info.segmentIndex, () => {
+      updateResultUI(info);
+      updateLeaderboard(currentNick, info.prizeCost, info.def.name === "JACKPOT");
+
+      // Se è uscito il JACKPOT -> blocca tutto, niente altri giri
+      if (info.def.name === "JACKPOT") {
+        gameLocked = true;
+        multiSpinsRemaining = 0;
+        updateMultiStatusDisplay(0);
+        spinBtn.disabled = true;
+        if (appRoot) appRoot.classList.add("jackpot-locked");
+        return;
+      }
+
+      multiSpinsRemaining--;
+
+      if (multiSpinsRemaining > 0) {
+        doSpin();
+      } else {
+        updateMultiStatusDisplay(0); // nasconde il popup
+      }
+    });
+  }
+
+  doSpin();
+});
+
+/* RESET CON CONFERMA – AZZERA STATISTICHE + CLASSIFICA */
+resetBtn.addEventListener("click", () => {
+  const sure = confirm(
+    "Vuoi davvero azzerare TUTTI i dati?\n- Statistiche sessione\n- Classifica generale vincitori"
+  );
+  if (!sure) return;
+
+  // azzera stats
+  totalSpins = 0;
+  totalNet = 0;
+  totalPrizeCost = 0;
+  jackpotCount = 0;
+  multiSpinsRemaining = 0;
+  multiSpinsTotal = 0;
+  gameLocked = false;
+  if (appRoot) appRoot.classList.remove("jackpot-locked");
+  spinBtn.disabled = false;
+  updateMultiStatusDisplay(0);
+
+  localStorage.removeItem("sm_wheel_stats_simple");
+  updateStatsBox();
+
+  // azzera classifica generale
+  localStorage.removeItem(LEADERBOARD_KEY);
+  renderLeaderboard();
+
+  resultBox.innerHTML = `
+    <div class="result-title"><span>🎁</span>Ultimo risultato</div>
+    <p>Nessun giro ancora effettuato. Premi "Gira la ruota" per iniziare.</p>`;
+});
+
+/* CARICAMENTI INIZIALI */
+loadStats();
+updateStatsBox();
+if (totalSpins > 0) {
+  resultBox.innerHTML = `
+    <div class="result-title"><span>🎁</span>Ultimo risultato</div>
+    <p class="result-sub">Sessione ripresa.</p>
+    <p class="result-sub">Giri totali: <span>${totalSpins}</span>.</p>
+    <p class="result-sub">Premi totali erogati: <span>${formatNumber(totalPrizeCost)}</span> monete.</p>`;
+}
+
+loadNick();
+renderLeaderboard();
+</script>
+
+</body>
+</html>
