@@ -7,7 +7,6 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* SFONDO NATALIZIO GENERALE */
     body {
       min-height: 100vh;
       display: flex;
@@ -18,10 +17,9 @@
         radial-gradient(circle at top, #ffffff20, #0b1220 55%, #020617 100%),
         linear-gradient(135deg, #991b1b, #14532d);
       color: #e5e7eb;
-      overflow: hidden; /* niente scroll */
+      overflow: hidden;
     }
 
-    /* Effetto "fiocchi di neve" leggero */
     body::before {
       content: "";
       position: fixed;
@@ -35,6 +33,83 @@
       opacity: 0.3;
       mix-blend-mode: screen;
       z-index: 0;
+    }
+
+    /* LOGIN SCREEN */
+    .login-screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, rgba(15,23,42,0.95), #020617);
+      z-index: 9999;
+    }
+
+    .login-box {
+      width: 90%;
+      max-width: 320px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: rgba(15,23,42,0.96);
+      border: 1px solid rgba(148,163,184,0.8);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      font-size: 12px;
+    }
+
+    .login-box h2 {
+      font-size: 16px;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+
+    .login-note {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    #loginForm {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    #loginForm label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 11px;
+    }
+
+    #loginForm input {
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      background: rgba(15,23,42,0.95);
+      color: #e5e7eb;
+      padding: 4px 10px;
+      font-size: 12px;
+    }
+
+    #loginForm button {
+      margin-top: 6px;
+      border: none;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: radial-gradient(circle at 20% 0, #22c55e,#15803d);
+      color:#fefce8;
+      box-shadow: 0 8px 18px rgba(22,163,74,0.6);
+    }
+
+    .login-small {
+      margin-top: 6px;
+      font-size: 10px;
+      color: #9ca3af;
+      text-align: center;
     }
 
     .app {
@@ -57,7 +132,6 @@
       transition: box-shadow 0.25s ease, transform 0.25s ease;
     }
 
-    /* Effetto quando esce il JACKPOT: tutto illuminato */
     .app.jackpot-locked {
       box-shadow:
         0 0 40px rgba(250,204,21,.9),
@@ -126,7 +200,6 @@
 
     .left { justify-content: center; }
 
-    /* RUOTA RIDOTTA */
     .wheel-wrapper {
       position: relative;
       width: min(280px, 62vw);
@@ -158,23 +231,39 @@
 
     .text-ring { position: absolute; inset: -2px; border-radius: 50%; pointer-events: none; z-index: 6; }
 
-    .led-ring { position: absolute; inset: -4px; border-radius: 999px; pointer-events: none; z-index: 3; }
+    .led-ring {
+      position: absolute;
+      inset: -6px;
+      border-radius: 999px;
+      pointer-events: none;
+      z-index: 3;
+      animation: casinoRotate 4s linear infinite;
+    }
+
+    @keyframes casinoRotate {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
     .led-dot {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 8px;
-      height: 8px;
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
       background: radial-gradient(circle at 30% 20%, #fef9c3, #b45309);
-      box-shadow: 0 0 4px rgba(250,204,21,.9), 0 0 10px rgba(250,204,21,.9);
-      opacity: 0.35;
+      box-shadow:
+        0 0 4px rgba(250,204,21,.9),
+        0 0 10px rgba(250,204,21,.9),
+        0 0 16px rgba(248,250,252,.8);
+      opacity: 0.5;
       transform-origin: 0 0;
-      animation: ledPulse 1.3s ease-in-out infinite alternate;
+      animation: ledPulse 0.9s ease-in-out infinite alternate;
     }
     @keyframes ledPulse {
-      0% { opacity: .2; transform: scale(.9); }
-      100% { opacity: 1; transform: scale(1.15); }
+      0% { opacity: .2; transform: scale(.85); }
+      100% { opacity: 1; transform: scale(1.2); }
     }
 
     .light-sweep-outer {
@@ -327,7 +416,6 @@
       z-index: 9;
     }
 
-    /* Babbo Natale */
     .santa-left,
     .santa-right {
       position: absolute;
@@ -383,10 +471,7 @@
       font-size:11px;
       padding-inline:12px;
     }
-    .btn-small {
-      font-size: 11px;
-      padding: 5px 12px;
-    }
+    .btn-small { font-size: 11px; padding: 5px 12px; }
 
     .music-toggle { font-size: 11px; cursor: pointer; color: #bbf7d0; }
     .info-row { display:flex; gap:6px; justify-content:center; font-size:11px; color:#9ca3af; flex-wrap: wrap; }
@@ -417,18 +502,9 @@
     }
     .legend-list { margin-left:14px; color:#d1d5db; }
 
-    /* Rettangolo combinato LEGGENDA + ULTIMO RISULTATO + STATISTICHE */
-    .legend-combined {
-      padding:6px 7px;
-    }
-    .legend-cols {
-      display:flex;
-      gap:6px;
-    }
-    .legend-col {
-      flex:1;
-      min-width:0;
-    }
+    .legend-combined { padding:6px 7px; }
+    .legend-cols { display:flex; gap:6px; }
+    .legend-col { flex:1; min-width:0; }
 
     .result {
       width:100%;
@@ -462,7 +538,6 @@
     .result-main.lose{color:#f97373;}
     .result-sub span{font-weight:600;}
 
-    /* STATISTICHE INLINE (sotto ultimo risultato) */
     .stats-inline {
       width:100%;
       border-radius:10px;
@@ -493,7 +568,6 @@
     }
 
     .hidden{display:none;}
-
     .xmas-msg {
       margin-top: 4px;
       font-size: 11px;
@@ -516,6 +590,9 @@
     }
     @keyframes prizeFade {
       0%{opacity:0;}10%{opacity:1;}80%{opacity:1;}100%{opacity:0;}
+    }
+    .prize-overlay-fixed {
+      animation: none;
     }
     .prize-banner{
       padding:16px 24px;
@@ -569,10 +646,7 @@
       100%{transform:scale(1.2);opacity:1;}
     }
 
-    /* Nickname & Leaderboard */
-    .nick {
-      margin-bottom:4px;
-    }
+    .nick { margin-bottom:4px; }
     .nick-input-row {
       display: flex;
       gap: 6px;
@@ -583,19 +657,14 @@
       flex: 1;
       border-radius: 999px;
       border: 1px solid rgba(148,163,184,.7);
-      background: rgba(15,23,42,.95);
+      background: rgba(15,23,42,0.95);
       color: #e5e7eb;
       padding: 4px 10px;
       font-size: 11px;
       outline: none;
     }
-    .nick-input::placeholder {
-      color: #6b7280;
-    }
-    .nick-current {
-      font-size: 10px;
-      color: #9ca3af;
-    }
+    .nick-input::placeholder { color: #6b7280; }
+    .nick-current { font-size: 10px; color: #9ca3af; }
 
     .leaderboard-list {
       margin-left: 16px;
@@ -604,9 +673,7 @@
       max-height: 120px;
       overflow: hidden;
     }
-    .leaderboard-list li {
-      margin-bottom: 2px;
-    }
+    .leaderboard-list li { margin-bottom: 2px; }
 
     .multi-input {
       width: 52px;
@@ -620,7 +687,6 @@
       text-align: center;
     }
 
-    /* Popup "Giro X di Y" */
     .multi-status {
       position: absolute;
       top: 6px;
@@ -639,31 +705,52 @@
 </head>
 <body>
 
-  <!-- SUONI -->
-  <audio id="bgMusic" src="natale.mp3" loop autoplay muted></audio>
+  <!-- AUDIO -->
+  <audio id="bgMusic" src="musica_bg.mp3" loop autoplay muted></audio>
   <audio id="spinSound" src="spin.mp3" preload="auto"></audio>
-  <audio id="winSound" src="win.mp3" preload="auto"></audio>
+  <audio id="winSmallSound" src="win_small.mp3" preload="auto"></audio>
+  <audio id="winMediumSound" src="win_medium.mp3" preload="auto"></audio>
   <audio id="jackpotSound" src="jackpot.mp3" preload="auto"></audio>
+  <audio id="loseSound" src="lose.mp3" preload="auto"></audio>
 
-  <!-- overlay premi -->
   <div id="prize-overlay" class="hidden"></div>
 
-  <div class="app" id="appRoot">
+  <!-- LOGIN -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-box">
+      <h2>Accesso Presentatore</h2>
+      <p class="login-note">
+        Inserisci le credenziali per avviare la ruota di SmartphoneMania.
+      </p>
+      <form id="loginForm">
+        <label>
+          Username
+          <input type="text" id="loginUser" autocomplete="off" />
+        </label>
+        <label>
+          Password
+          <input type="password" id="loginPass" />
+        </label>
+        <button type="submit">Entra</button>
+      </form>
+      <p class="login-small">
+        Accesso riservato allo staff · Ruota non concepita per gioco d’azzardo.
+      </p>
+    </div>
+  </div>
+
+  <!-- APP RUOTA -->
+  <div class="app" id="appRoot" style="display:none;">
     <header>
       <div class="badge"><span>🎄 Xmas Edition</span> · Ruota Jackpot</div>
       <h1>SMARTPHONEMANIA WHEEL</h1>
       <p class="subtitle">Gioco interno per le live · Jackpot 45.000 monete</p>
     </header>
 
-    <!-- 🔢 POPUP CONTA GIRI MULTIPLI -->
-    <div id="multiStatus" class="multi-status hidden">
-      Giro 1 di 1
-    </div>
+    <div id="multiStatus" class="multi-status hidden">Giro 1 di 1</div>
 
     <div class="content">
       <div class="left">
-
-        <!-- RUOTA -->
         <div class="wheel-wrapper">
           <div class="wheel-ring"></div>
           <div class="garland-ring"></div>
@@ -679,10 +766,8 @@
           </div>
 
           <div class="wheel-snow"></div>
-
           <div class="pointer"></div>
           <div class="pointer-base"></div>
-
           <div class="santa-left">🎅</div>
           <div class="santa-right">🎅</div>
         </div>
@@ -690,10 +775,20 @@
         <div class="controls">
           <button class="btn btn-primary" id="spinBtn">🎡 Gira la ruota</button>
           <button class="btn btn-secondary" id="resetBtn">🔄 Azzera sessione</button>
-          <div class="music-toggle" id="musicToggle">🔊 Musica natalizia: OFF (tocca per ON)</div>
+          <div class="music-toggle" id="musicToggle">🔊 Musica di sottofondo: OFF (tocca per ON)</div>
 
           <div class="info-row">
-            <div class="chip">🎟️ 100 monete a giro</div>
+            <div class="chip">
+              💰 Monete per giro:
+              <select id="spinCostSelector" class="multi-input" style="width:80px;">
+                <option value="100">100</option>
+                <option value="200">200</option>
+                <option value="500">500</option>
+                <option value="1000">1000</option>
+                <option value="2500">2500</option>
+                <option value="5000">5000</option>
+              </select>
+            </div>
           </div>
 
           <div class="info-row">
@@ -710,12 +805,20 @@
             </div>
           </div>
         </div>
-
       </div>
 
       <div class="right">
 
-        <!-- 👤 REGISTRAZIONE NICK -->
+        <section class="legend" style="margin-bottom:5px; text-align:center; border-color: rgba(220,38,38,0.7); background:rgba(127,29,29,0.4);">
+          <div class="legend-title" style="justify-content:center; color:#fecaca;">
+            <span>❌</span><span style="font-size:14px;">NO GAMBLING</span>
+          </div>
+          <p style="font-size:11px; color:#fee2e2; text-align:center; line-height:1.3; margin-top:2px;">
+            Questa ruota non è un gioco d’azzardo.<br>
+            È un gioco interno creato solo per ringraziare e gratificare i sostenitori che supportano le mie live.
+          </p>
+        </section>
+
         <section class="nick">
           <div class="nick-title"><span>👤</span>Nick giocatore</div>
           <div class="nick-input-row">
@@ -729,13 +832,9 @@
           </div>
           <div class="nick-current" id="currentNick">Nessun Nick selezionato.</div>
         </section>
-        <!-- FINE NICK -->
 
-        <!-- 🔥 RETTANGOLO COMBINATO: ULTIMO RISULTATO + STATISTICHE + LEGENDA PREMI -->
         <section class="legend legend-combined">
           <div class="legend-cols">
-
-            <!-- ULTIMO RISULTATO + STATISTICHE A SINISTRA -->
             <div class="legend-col">
               <section class="result" id="resultBox">
                 <div class="result-title"><span>🎁</span>Ultimo risultato</div>
@@ -744,14 +843,13 @@
 
               <section class="stats-inline">
                 <div class="stats-title"><span>📊</span>Statistiche</div>
-                <div class="stats-row"><span>Giri effettuati</span><span id="statSpins">0</span></div>
+                <div class="stats-row"><span>Giri BASE totali (da 100)</span><span id="statSpins">0</span></div>
                 <div class="stats-row"><span>Premi totali erogati</span><span id="statPrizes">0</span></div>
               </section>
             </div>
 
-            <!-- LEGENDA PREMI A DESTRA -->
             <div class="legend-col">
-              <div class="legend-title"><span>📜</span>Legenda premi</div>
+              <div class="legend-title"><span>📜</span>Legenda premi (per 1 giro da 100)</div>
               <ul class="legend-list">
                 <li>❌ Nessun premio</li>
                 <li>🎁 100 monete</li>
@@ -763,12 +861,9 @@
               </ul>
               <p class="xmas-msg">🎅 Buon Natale da SmartphoneMania Agency 🎄</p>
             </div>
-
           </div>
         </section>
-        <!-- 🔥 FINE RETTANGOLO COMBINATO -->
 
-        <!-- 🏆 CLASSIFICA GENERALE VINCITORI -->
         <section class="leaderboard">
           <div class="leaderboard-title"><span>🏆</span>Classifica generale vincitori</div>
           <ol class="leaderboard-list" id="leaderboardList">
@@ -777,15 +872,14 @@
         </section>
 
         <p class="footer-note">
-          In live si vedono solo giri, premi totali erogati e classifica dei vincitori. Tutta la logica economica resta interna.
+          Un giro da 5000 monete equivale a 50 giri BASE da 100, con la stessa logica di payout e premi proporzionati.
         </p>
-
       </div>
     </div>
   </div>
 
 <script>
-/* ANELLO ESTERNO – NESSUNA SCRITTA (LOGO PULITO) */
+/* ELEMENTI GENERALI */
 const textRing = document.getElementById('textRing');
 const appRoot = document.getElementById('appRoot');
 
@@ -797,24 +891,77 @@ const ledRing = document.getElementById('ledRing');
     const dot = document.createElement('div');
     dot.className = 'led-dot';
     const angle = (360 / count) * i;
-    dot.style.transform = `rotate(${angle}deg) translate(0,-50%)`;
-    dot.style.animationDelay = (i % 2 === 0 ? 0 : 0.5) + 's';
+    dot.style.transform = 'rotate(' + angle + 'deg) translate(0,-50%)';
+    // alterno velocità lampeggio per effetto "casino"
+    dot.style.animationDelay = (i % 3) * 0.2 + 's';
     ledRing.appendChild(dot);
   }
 })();
 
+/* AUDIO */
 const bgMusic = document.getElementById('bgMusic');
 const spinSound = document.getElementById('spinSound');
-const winSound = document.getElementById('winSound');
+const winSmallSound = document.getElementById('winSmallSound');
+const winMediumSound = document.getElementById('winMediumSound');
 const jackpotSound = document.getElementById('jackpotSound');
+const loseSound = document.getElementById('loseSound');
 const musicToggle = document.getElementById('musicToggle');
 
 let musicOn = false;
 let audioUnlocked = false;
 
 if (spinSound) spinSound.volume = 0.8;
-if (winSound) winSound.volume = 0.9;
+if (winSmallSound) winSmallSound.volume = 0.9;
+if (winMediumSound) winMediumSound.volume = 0.9;
 if (jackpotSound) jackpotSound.volume = 1.0;
+if (loseSound) loseSound.volume = 0.9;
+if (bgMusic) bgMusic.volume = 0.25; // volume base PIÙ BASSO
+
+// Gestione priorità suoni: prima i suoni di sistema, poi la musica
+let bgPrevVolume = 0.25;
+let bgDucked = false;
+
+function stopAllEffectSounds() {
+  [winSmallSound, winMediumSound, jackpotSound, loseSound].forEach(s => {
+    if (!s) return;
+    s.pause();
+    s.currentTime = 0;
+  });
+}
+
+function playEffectWithDuck(sound) {
+  if (!sound) return;
+
+  // ferma eventuali altri suoni per evitare accavallamenti
+  stopAllEffectSounds();
+
+  let hadMusic = false;
+
+  // abbassa la musica di sottofondo mentre parte l’effetto
+  if (bgMusic && !bgMusic.paused) {
+    hadMusic = true;
+    if (!bgDucked) {
+      bgPrevVolume = bgMusic.volume;
+    }
+    bgMusic.volume = 0.05; // musica molto bassa durante l’effetto
+    bgDucked = true;
+  }
+
+  try {
+    sound.currentTime = 0;
+    sound.play().catch(() => {});
+  } catch (e) {}
+
+  const restore = () => {
+    if (hadMusic && bgMusic) {
+      bgMusic.volume = bgPrevVolume; // ripristina il volume dopo il suono
+    }
+    bgDucked = false;
+    sound.removeEventListener("ended", restore);
+  };
+
+  sound.addEventListener("ended", restore);
+}
 
 async function setMusic(on) {
   try {
@@ -822,31 +969,65 @@ async function setMusic(on) {
       bgMusic.muted = false;
       await bgMusic.play();
       musicOn = true;
-      musicToggle.textContent = "🔊 Musica natalizia: ON (tocca per OFF)";
+      musicToggle.textContent = "🔊 Musica di sottofondo: ON (tocca per OFF)";
     } else {
       bgMusic.pause();
       musicOn = false;
-      musicToggle.textContent = "🔊 Musica natalizia: OFF (tocca per ON)";
+      musicToggle.textContent = "🔊 Musica di sottofondo: OFF (tocca per ON)";
     }
   } catch(e) {}
 }
 
 document.addEventListener("click", () => {
   if (!audioUnlocked) {
-    [bgMusic, spinSound, winSound, jackpotSound].forEach(a => { if (a) a.muted = false; });
+    [bgMusic, spinSound, winSmallSound, winMediumSound, jackpotSound, loseSound]
+      .forEach(a => { if (a) a.muted = false; });
     audioUnlocked = true;
   }
 }, { once: true });
 
 musicToggle.addEventListener("click", () => setMusic(!musicOn));
 
-/* ECONOMIA */
-const TICKET_PRICE = 100;              // 100 monete a giro
+/* LOGIN PRESENTATORE */
+const loginScreen = document.getElementById("loginScreen");
+const loginForm = document.getElementById("loginForm");
+const loginUser = document.getElementById("loginUser");
+const loginPass = document.getElementById("loginPass");
+
+// 🔐 Credenziali
+const ADMIN_USER = "presenter";
+const ADMIN_PASS = "smartphonemania";
+
+function checkAlreadyLogged() {
+  const flag = localStorage.getItem("sm_wheel_logged_in");
+  if (flag === "1") {
+    if (loginScreen) loginScreen.style.display = "none";
+    if (appRoot) appRoot.style.display = "block";
+  }
+}
+
+if (loginForm) {
+  loginForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const u = (loginUser.value || "").trim();
+    const p = loginPass.value || "";
+
+    if (u === ADMIN_USER && p === ADMIN_PASS) {
+      localStorage.setItem("sm_wheel_logged_in", "1");
+      if (loginScreen) loginScreen.style.display = "none";
+      if (appRoot) appRoot.style.display = "block";
+    } else {
+      alert("Credenziali errate. Riprova.");
+    }
+  });
+}
+
+/* ECONOMIA E LOGICA RUOTA */
+const TICKET_PRICE = 100;              // 100 monete a giro BASE
 const TIKTOK_FEE_RATE = 0.55;
 const NET_PER_SPIN = TICKET_PRICE * (1 - TIKTOK_FEE_RATE); // 45
-// profitto minimo garantito DOPO il jackpot (su 5000 giri resti in utile)
 const JACKPOT_THRESHOLD_PROFIT = 40000;
-const JACKPOT_BASE_PROB = 0.5;          // filtro extra: jackpot non sempre anche se tutto ok
+const JACKPOT_BASE_PROB = 0.5;
 
 const wheel = document.getElementById("wheel");
 const spinBtn = document.getElementById("spinBtn");
@@ -858,8 +1039,9 @@ const statPrizes = document.getElementById("statPrizes");
 
 const multiSpinsInput = document.getElementById("multiSpinsInput");
 const multiStatus = document.getElementById("multiStatus");
+const spinCostSelector = document.getElementById("spinCostSelector");
 
-/* 🔹 ELEMENTI NICK & CLASSIFICA */
+/* Nick & Classifica */
 const nickInput = document.getElementById("nickInput");
 const saveNickBtn = document.getElementById("saveNickBtn");
 const currentNickLabel = document.getElementById("currentNick");
@@ -868,12 +1050,11 @@ const leaderboardListEl = document.getElementById("leaderboardList");
 let isSpinning = false;
 let currentRotation = 0;
 
-let totalSpins = 0;
+let totalSpins = 0;        // giri BASE (100 monete)
 let totalNet = 0;
 let totalPrizeCost = 0;
 let jackpotCount = 0;
 
-/* Nick & Leaderboard – stato */
 let currentNick = "";
 const LEADERBOARD_KEY = "sm_wheel_leaderboard";
 
@@ -905,7 +1086,7 @@ function updateStatsBox(){
   saveStats();
 }
 
-/* 🔹 Gestione Nick */
+/* Nick */
 function refreshNickLabel() {
   if (currentNick && currentNick.trim() !== "") {
     currentNickLabel.textContent = "Nick attivo: " + currentNick;
@@ -913,14 +1094,12 @@ function refreshNickLabel() {
     currentNickLabel.textContent = "Nessun Nick selezionato.";
   }
 }
-
 function loadNick() {
   const stored = localStorage.getItem("sm_wheel_nick") || "";
   currentNick = stored;
   if (nickInput) nickInput.value = stored;
   refreshNickLabel();
 }
-
 function saveNick() {
   const value = nickInput.value.trim();
   if (!value) {
@@ -931,12 +1110,11 @@ function saveNick() {
   localStorage.setItem("sm_wheel_nick", currentNick);
   refreshNickLabel();
 }
-
 if (saveNickBtn) {
   saveNickBtn.addEventListener("click", saveNick);
 }
 
-/* 🔹 Gestione Leaderboard */
+/* Classifica */
 function loadLeaderboard() {
   try {
     const raw = localStorage.getItem(LEADERBOARD_KEY);
@@ -948,11 +1126,9 @@ function loadLeaderboard() {
     return [];
   }
 }
-
 function saveLeaderboard(lb) {
   localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(lb));
 }
-
 function renderLeaderboard() {
   const lb = loadLeaderboard();
   if (!leaderboardListEl) return;
@@ -969,11 +1145,9 @@ function renderLeaderboard() {
     </li>
   `).join("");
 }
-
 function updateLeaderboard(nick, prizeAmount, isJackpot) {
   if (!nick || !nick.trim()) return;
   if (prizeAmount <= 0) {
-    // solo giri vincenti vanno in classifica
     renderLeaderboard();
     return;
   }
@@ -993,7 +1167,6 @@ function updateLeaderboard(nick, prizeAmount, isJackpot) {
 /* Popup "Giro X di Y" */
 function updateMultiStatusDisplay(currentNumber) {
   if (!multiStatus) return;
-
   if (multiSpinsTotal > 1 && multiSpinsRemaining > 0) {
     if (currentNumber > 0) {
       multiStatus.textContent = `Giro ${currentNumber} di ${multiSpinsTotal}`;
@@ -1004,12 +1177,14 @@ function updateMultiStatusDisplay(currentNumber) {
   }
 }
 
-/* Random + premi – STRUTTURA PENSATA SU 5000 GIRI
-   Obiettivo:
-   - più premi piccoli per coinvolgimento
-   - restare comunque in profitto anche pagando un jackpot da 45.000
-   - media ~28 monete di premio per giro (senza jackpot)
-*/
+/* Monete per giro -> quanti giri BASE da 100 */
+function getBaseSpinsPerClick() {
+  const val = parseInt(spinCostSelector.value, 10);
+  if (isNaN(val) || val < TICKET_PRICE) return 1;
+  return Math.max(1, val / TICKET_PRICE); // 100 →1, 200→2, 500→5, ... 5000→50
+}
+
+/* Helper random e premi */
 function randomInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
 
 const prizeDefs = {
@@ -1022,109 +1197,125 @@ const prizeDefs = {
   NO_WIN:  { name: "NESSUN_PREMIO",label: "❌ Nessun premio",             amount: 0 }
 };
 
-/*
-  Distribuzione NON–jackpot su 1..1000:
-
-  2..201    (200 numeri) → 100 monete
-  202..211  (10 numeri)  → 250 monete
-  212..215  (4 numeri)   → 500 monete
-  216       (1 numero)   → 1.000 monete
-  217       (1 numero)   → 2.500 monete
-  1 e 218..1000          → nessun premio
-
-  Valore medio premi:
-    200 × 100   = 20.000
-     10 × 250   =  2.500
-      4 × 500   =  2.000
-      1 × 1000  =  1.000
-      1 × 2500  =  2.500
-    ------------------------
-                 28.000 / 1000 = 28 monete/giro
-
-  Il numero 1 resta "speciale" per il jackpot:
-  - Se i requisiti di profitto sono rispettati → può assegnare il JACKPOT
-  - Altrimenti cade nel NO_WIN.
-*/
 const segmentRanges = [
-  // premi veri
-  { segmentIndex: 2, prizeKey: "P100",  rangeStart:   2, rangeEnd: 201 }, // 200 numeri → 100
-  { segmentIndex: 5, prizeKey: "P250",  rangeStart: 202, rangeEnd: 211 }, // 10 numeri  → 250
-  { segmentIndex: 3, prizeKey: "P500",  rangeStart: 212, rangeEnd: 215 }, // 4 numeri   → 500
-  { segmentIndex: 1, prizeKey: "P1000", rangeStart: 216, rangeEnd: 216 }, // 1 numero   → 1.000
-  { segmentIndex: 6, prizeKey: "P2500", rangeStart: 217, rangeEnd: 217 }, // 1 numero   → 2.500
-
-  // nessun premio (incluso 1 se non scatta il jackpot)
-  { segmentIndex: 0, prizeKey: "NO_WIN", rangeStart:   1, rangeEnd:   1   },
+  { segmentIndex: 2, prizeKey: "P100",  rangeStart:   2, rangeEnd: 201 },
+  { segmentIndex: 5, prizeKey: "P250",  rangeStart: 202, rangeEnd: 211 },
+  { segmentIndex: 3, prizeKey: "P500",  rangeStart: 212, rangeEnd: 215 },
+  { segmentIndex: 1, prizeKey: "P1000", rangeStart: 216, rangeEnd: 216 },
+  { segmentIndex: 6, prizeKey: "P2500", rangeStart: 217, rangeEnd: 217 },
+  { segmentIndex: 0, prizeKey: "NO_WIN", rangeStart:   1, rangeEnd:   1 },
   { segmentIndex: 4, prizeKey: "NO_WIN", rangeStart: 218, rangeEnd: 1000 }
 ];
 
+/* Un singolo giro BASE (da 100 monete) */
 function pickPrizeByRandom() {
-  while(true){
-    const rnd = randomInt(1,1000);
-    const net = NET_PER_SPIN;
-    const tentativeTotalNet = totalNet + net;
+  const rnd = randomInt(1,1000);
+  const tentativeTotalNet = totalNet + NET_PER_SPIN;
 
-    // 🔥 Gestione JACKPOT: solo se rnd === 1, profitto sufficiente e random extra
+  if (!gameLocked && rnd === 1) {
     const jackpotAmount = prizeDefs.JACKPOT.amount;
     const profitIfJackpot = tentativeTotalNet - (totalPrizeCost + jackpotAmount);
-    if (!gameLocked &&
-        rnd === 1 &&
-        profitIfJackpot >= JACKPOT_THRESHOLD_PROFIT &&
-        Math.random() < JACKPOT_BASE_PROB) {
 
-      totalSpins += 1;
-      totalNet = tentativeTotalNet;
-      totalPrizeCost += jackpotAmount;
-      jackpotCount += 1;
-      updateStatsBox();
+    if (profitIfJackpot >= JACKPOT_THRESHOLD_PROFIT) {
+      const roll = Math.random();
+      if (roll <= JACKPOT_BASE_PROB) {
+        totalSpins += 1;
+        totalNet = tentativeTotalNet;
+        totalPrizeCost += jackpotAmount;
+        jackpotCount += 1;
+        updateStatsBox();
 
-      return {
-        rnd,
-        def: prizeDefs.JACKPOT,
-        prizeCost: jackpotAmount,
-        segmentIndex: 7,
-        isJackpot: true
-      };
+        return {
+          rnd,
+          def: prizeDefs.JACKPOT,
+          prizeCost: jackpotAmount,
+          segmentIndex: 7,
+          isJackpot: true
+        };
+      }
     }
-
-    // Altrimenti premi normali / nessun premio
-    const segInfo = segmentRanges.find(r => rnd >= r.rangeStart && r.rangeEnd >= rnd);
-    const def = prizeDefs[segInfo.prizeKey];
-    const prizeCost = def.amount;
-
-    totalSpins += 1;
-    totalNet = tentativeTotalNet;
-    totalPrizeCost += prizeCost;
-    updateStatsBox();
-
-    return {
-      rnd,
-      def,
-      prizeCost,
-      segmentIndex: segInfo.segmentIndex,
-      isJackpot: false
-    };
   }
+
+  const segInfo = segmentRanges.find(r => rnd >= r.rangeStart && r.rangeEnd >= rnd);
+  const def = prizeDefs[segInfo.prizeKey];
+  const prizeCost = def.amount;
+
+  totalSpins += 1;
+  totalNet = tentativeTotalNet;
+  totalPrizeCost += prizeCost;
+  updateStatsBox();
+
+  return {
+    rnd,
+    def,
+    prizeCost,
+    segmentIndex: segInfo.segmentIndex,
+    isJackpot: false
+  };
 }
 
-function showPrizeBanner(def, prizeCost) {
-  prizeOverlay.classList.remove("hidden");
+/* Un lancio “grosso” = N giri BASE da 100 (in base alle monete per giro) */
+function runAggregatedSpin() {
+  const baseSpins = getBaseSpinsPerClick();
+  let aggregatedPrize = 0;
+  let lastInfo = null;
+  let jackpotInThis = false;
 
+  for (let i = 0; i < baseSpins; i++) {
+    const info = pickPrizeByRandom();
+    aggregatedPrize += info.prizeCost;
+    lastInfo = info;
+    if (info.def.name === "JACKPOT") {
+      jackpotInThis = true;
+      break;
+    }
+  }
+
+  let labelDef;
+  if (jackpotInThis) {
+    labelDef = prizeDefs.JACKPOT;
+  } else if (aggregatedPrize === 0) {
+    labelDef = prizeDefs.NO_WIN;
+  } else {
+    labelDef = {
+      name: "PREMIO_CUMULATO",
+      label: "🎁 Premio complessivo",
+      amount: aggregatedPrize
+    };
+  }
+
+  const segmentIndex = jackpotInThis
+    ? 7
+    : (lastInfo ? lastInfo.segmentIndex : 0);
+
+  return {
+    labelDef,
+    aggregatedPrize,
+    spinsBase: baseSpins,
+    lastRnd: lastInfo ? lastInfo.rnd : "-",
+    isJackpot: jackpotInThis,
+    segmentIndex
+  };
+}
+
+function showPrizeBanner(def, prizeAmount) {
   const isJackpot = def.name === "JACKPOT";
-  const amountText = prizeCost > 0
-    ? `${formatNumber(prizeCost)} MONETE`
+  const amountText = prizeAmount > 0
+    ? `${formatNumber(prizeAmount)} MONETE`
     : "NESSUN PREMIO";
 
   const title = isJackpot
     ? "JACKPOT!"
-    : (prizeCost > 0 ? "HAI VINTO!" : "RITENTA");
+    : (prizeAmount > 0 ? "HAI VINTO!" : "RITENTA");
 
   const sub = isJackpot
     ? "SUPER JACKPOT! GIOCO BLOCCATO. Premi \"Azzera sessione\" per ripartire. 🎉"
-    : (prizeCost > 0 ? "Premio assegnato alla ruota di SmartphoneMania." : "Nessun premio in questo giro.");
+    : (prizeAmount > 0 ? "Premio complessivo assegnato alla ruota di SmartphoneMania." : "Nessun premio in questo giro.");
 
+  const fixedClass = isJackpot ? "prize-overlay-fixed" : "";
+  prizeOverlay.classList.remove("hidden");
   prizeOverlay.innerHTML = `
-    <div class="prize-overlay">
+    <div class="prize-overlay ${fixedClass}">
       <div class="prize-banner ${isJackpot ? "jackpot" : ""}">
         <div class="prize-title ${isJackpot ? "jackpot" : ""}">${title}</div>
         <div class="prize-amount ${isJackpot ? "jackpot" : ""}">${amountText}</div>
@@ -1133,35 +1324,49 @@ function showPrizeBanner(def, prizeCost) {
     </div>
   `;
 
-  setTimeout(() => {
-    prizeOverlay.classList.add("hidden");
-    prizeOverlay.innerHTML = "";
-  }, isJackpot ? 3500 : 2200);
+  if (!isJackpot) {
+    setTimeout(() => {
+      prizeOverlay.classList.add("hidden");
+      prizeOverlay.innerHTML = "";
+    }, 2200);
+  }
 }
 
-function updateResultUI(info){
-  const { rnd, def, prizeCost, isJackpot } = info;
-  const cls =
-    def.name === "JACKPOT" ? "jackpot" :
-    prizeCost === 0 ? "lose" : "win";
+/* UI per risultato aggregato */
+function updateResultUI(aggInfo) {
+  const { labelDef, aggregatedPrize, spinsBase, lastRnd, isJackpot } = aggInfo;
 
-  const numeroEstratto = isJackpot ? "★ JACKPOT ★" : rnd;
+  const cls =
+    labelDef.name === "JACKPOT" ? "jackpot" :
+    aggregatedPrize === 0 ? "lose" : "win";
+
+  const numeroEstratto = isJackpot ? "★ JACKPOT ★" : lastRnd;
 
   resultBox.innerHTML = `
-    <div class="result-title"><span>${def.name==="JACKPOT"?"🌟":"🎁"}</span>Ultimo risultato</div>
-    <p class="result-main ${cls}">${def.label}</p>
-    <p class="result-sub">Numero estratto: <span>${numeroEstratto}</span></p>
-    <p class="result-sub">Valore premio erogato: <span>${formatNumber(prizeCost)}</span> monete</p>
-    <p class="result-sub">Giri totali finora: <span>${totalSpins}</span></p>
+    <div class="result-title"><span>${labelDef.name==="JACKPOT"?"🌟":"🎁"}</span>Ultimo risultato</div>
+    <p class="result-main ${cls}">${labelDef.label}</p>
+    <p class="result-sub">Giri BASE (da 100) in questo lancio: <span>${spinsBase}</span></p>
+    <p class="result-sub">Numero estratto (ultimo): <span>${numeroEstratto}</span></p>
+    <p class="result-sub">Premio complessivo: <span>${formatNumber(aggregatedPrize)}</span> monete</p>
+    <p class="result-sub">Giri BASE totali finora: <span>${totalSpins}</span></p>
     <p class="result-sub">Premi totali erogati: <span>${formatNumber(totalPrizeCost)}</span> monete</p>
   `;
 
-  if (def.name === "JACKPOT") {
-    jackpotSound?.play().catch(()=>{});
-  } else if (prizeCost > 0) {
-    winSound?.play().catch(()=>{});
+  // SUONI con priorità sugli effetti e musica abbassata
+  if (labelDef.name === "JACKPOT") {
+    playEffectWithDuck(jackpotSound);
+  } else if (aggregatedPrize > 0) {
+    if (aggregatedPrize <= 250) {
+      playEffectWithDuck(winSmallSound);
+    } else {
+      playEffectWithDuck(winMediumSound);
+    }
+  } else {
+    // nessun premio
+    playEffectWithDuck(loseSound);
   }
-  showPrizeBanner(def, prizeCost);
+
+  showPrizeBanner(labelDef, aggregatedPrize);
 }
 
 function normalizeAngle(a){ a = a%360; if(a<0)a+=360; return a; }
@@ -1208,14 +1413,13 @@ function spinAnimation(segmentIndex, cb){
   }, 4800);
 }
 
-/* CLICK GIRA LA RUOTA – con giri multipli + blocco su JACKPOT */
+/* CLICK GIRA LA RUOTA */
 spinBtn.addEventListener("click", () => {
   if (gameLocked) {
     alert('È uscito il JACKPOT! Il gioco è bloccato.\nPremi "Azzera sessione" per ripartire.');
     return;
   }
 
-  // Se sta già facendo giri multipli o sta girando, ignora il click
   if (multiSpinsRemaining > 0 || isSpinning) {
     return;
   }
@@ -1229,7 +1433,7 @@ spinBtn.addEventListener("click", () => {
   if (multiSpinsInput) {
     const v = parseInt(multiSpinsInput.value, 10);
     if (!isNaN(v) && v > 0) {
-      spinsToDo = Math.min(v, 100); // limite di sicurezza
+      spinsToDo = Math.min(v, 100);
     }
   }
 
@@ -1246,13 +1450,13 @@ spinBtn.addEventListener("click", () => {
     const currentSpinNumber = multiSpinsTotal - multiSpinsRemaining + 1;
     updateMultiStatusDisplay(currentSpinNumber);
 
-    const info = pickPrizeByRandom();
-    spinAnimation(info.segmentIndex, () => {
-      updateResultUI(info);
-      updateLeaderboard(currentNick, info.prizeCost, info.def.name === "JACKPOT");
+    const aggInfo = runAggregatedSpin();
 
-      // Se è uscito il JACKPOT -> blocca tutto, niente altri giri
-      if (info.def.name === "JACKPOT") {
+    spinAnimation(aggInfo.segmentIndex, () => {
+      updateResultUI(aggInfo);
+      updateLeaderboard(currentNick, aggInfo.aggregatedPrize, aggInfo.labelDef.name === "JACKPOT");
+
+      if (aggInfo.labelDef.name === "JACKPOT") {
         gameLocked = true;
         multiSpinsRemaining = 0;
         updateMultiStatusDisplay(0);
@@ -1266,7 +1470,7 @@ spinBtn.addEventListener("click", () => {
       if (multiSpinsRemaining > 0) {
         doSpin();
       } else {
-        updateMultiStatusDisplay(0); // nasconde il popup
+        updateMultiStatusDisplay(0);
       }
     });
   }
@@ -1274,14 +1478,13 @@ spinBtn.addEventListener("click", () => {
   doSpin();
 });
 
-/* RESET CON CONFERMA – AZZERA STATISTICHE + CLASSIFICA */
+/* RESET TOTALE */
 resetBtn.addEventListener("click", () => {
   const sure = confirm(
-    "Vuoi davvero azzerare TUTTI i dati?\n- Statistiche sessione\n- Classifica generale vincitori"
+    "Vuoi davvero azzerare TUTTI i dati?\n- Statistiche sessione\n- Classifica generale vincitori\n- Sblocco dopo Jackpot"
   );
   if (!sure) return;
 
-  // azzera stats
   totalSpins = 0;
   totalNet = 0;
   totalPrizeCost = 0;
@@ -1296,28 +1499,31 @@ resetBtn.addEventListener("click", () => {
   localStorage.removeItem("sm_wheel_stats_simple");
   updateStatsBox();
 
-  // azzera classifica generale
   localStorage.removeItem(LEADERBOARD_KEY);
   renderLeaderboard();
+
+  prizeOverlay.classList.add("hidden");
+  prizeOverlay.innerHTML = "";
 
   resultBox.innerHTML = `
     <div class="result-title"><span>🎁</span>Ultimo risultato</div>
     <p>Nessun giro ancora effettuato. Premi "Gira la ruota" per iniziare.</p>`;
 });
 
-/* CARICAMENTI INIZIALI */
+/* INIT */
 loadStats();
 updateStatsBox();
 if (totalSpins > 0) {
   resultBox.innerHTML = `
     <div class="result-title"><span>🎁</span>Ultimo risultato</div>
     <p class="result-sub">Sessione ripresa.</p>
-    <p class="result-sub">Giri totali: <span>${totalSpins}</span>.</p>
+    <p class="result-sub">Giri BASE totali: <span>${totalSpins}</span>.</p>
     <p class="result-sub">Premi totali erogati: <span>${formatNumber(totalPrizeCost)}</span> monete.</p>`;
 }
 
 loadNick();
 renderLeaderboard();
+checkAlreadyLogged();
 </script>
 
 </body>
